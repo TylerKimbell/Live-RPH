@@ -28,3 +28,9 @@ The script refreshes every minute to stay up to date with new statuses/case repl
   -Replace {id} on line 21 with your toolbelt id.
     -To find your toolbelt id open the network tab of devtools on the page, search for "timeline", and look at the path url. It will be /users/{id}/timeline.json
     <img width="1437" alt="toolbeltId" src="https://github.com/TylerKimbell/Real-Time-RPH-Calculator/assets/8732563/8db97d21-2711-4a7a-b84a-8086ccf361a4">
+
+# How to Use
+Simply open the console in devtools and you should see the output from the script. 
+Hotkeys to open Console:  
+Windows – Ctrl + Shift + J.  
+Mac – Cmd + Opt +J.
