@@ -30,7 +30,7 @@ The script refreshes every minute to stay up to date with new statuses/case repl
     <img width="1437" alt="toolbeltId" src="https://github.com/TylerKimbell/Real-Time-RPH-Calculator/assets/8732563/8db97d21-2711-4a7a-b84a-8086ccf361a4">
 
 # How to Use
-Simply open the console in devtools and you should see the output from the script. 
+Simply open the console in devtools and you should see the output from the script.  
 Hotkeys to open Console:  
 Windows – Ctrl + Shift + J.  
 Mac – Cmd + Opt +J.
