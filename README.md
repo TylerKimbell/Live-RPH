@@ -34,7 +34,7 @@ RPH calculation also includes a %10 buffer subtracted from the Time in Ready as 
 2. Install the script from this [link](https://greasyfork.org/en/scripts/487882-real-time-rph-calculator)
 3. Edit the script in your script manager. In Tampermonkey you can click on the extension > Dashboard > click on the script to edit it. 
   -Replace {first-last} on line 7 with your first and last name. Example for me would be tyler-kimbell. This will allow the script to run on your specific toolbelt page. 
-  -Replace {id} on line 21 with your toolbelt id.
+  -Replace {id} on line 24 with your toolbelt id. This is for the HTTP requestURL so that it works with your specific ID. 
     -To find your toolbelt id open the network tab of devtools on the page, search for "timeline", and look at the path url. It will be /users/{id}/timeline.json
      
     <img width="1437" alt="toolbeltId" src="https://github.com/TylerKimbell/Real-Time-RPH-Calculator/assets/8732563/8db97d21-2711-4a7a-b84a-8086ccf361a4">
