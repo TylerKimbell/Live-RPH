@@ -18,6 +18,7 @@ RPH calculation: Case Replies/Inactive Time. So if you work for 2 hours and you 
 RPH calculation also includes a %10 buffer subtracted from the inactive time as there will be some time you are 'inactive', but otherwise busy. 
 For my own needs I also have opted for the script to show other useful information like the Break Time, Case Replies, etc.  
 <img width="1432" alt="RPHScript" src="https://github.com/TylerKimbell/Real-Time-RPH-Calculator/assets/8732563/a455314b-45ed-4db1-bb8f-6335d0c68c33">
+The script refreshes every minute to stay up to date with new statuses/case replies. 
 
 # Installation
 1. Install a User Script manager extension on your browser. Example [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
