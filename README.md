@@ -28,7 +28,7 @@ Example: if you work uninterupted (in a ready status) for 2 hours and you sent 4
 RPH calculation also includes a %10 buffer subtracted from the Time in Ready as there will be some time you are 'inactive', but otherwise busy. This is how the actual metric works so I included that in the script to be as accurate as possible.  
 
 # Installation
-1. Install a User Script manager extension on your browser. Example [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
+1. Install [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
 2. Install the script from this [link](https://greasyfork.org/en/scripts/487882-real-time-rph-calculator)
 
 # How to Use
