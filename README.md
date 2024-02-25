@@ -17,12 +17,10 @@ In toolbelt there is a graph (Agent Timeline) that tracks your status throughout
   
 You can find the HTTP request that provides the information for the graph in the network tab of devtools if you search for 'timeline'. In the response of the request you can see the different statuses you have been in throughout the day and how long you were in them.  
 Using that HTTP request, the script parses all of that information, and uses it to calculate RPH. It then outputs that info in the console.  
-For my own needs I also have opted for the script to show other useful information like the Break Time, Case Replies, etc.    
+The script displays other useful information as well such as Break Time, Case Replies, etc.    
+The script refreshes every minute to stay up to date with new statuses/case replies.  
   
 <img width="1432" alt="RPHScript" src="https://github.com/TylerKimbell/Real-Time-RPH-Calculator/assets/8732563/a455314b-45ed-4db1-bb8f-6335d0c68c33">
-  
-The script refreshes every minute to stay up to date with new statuses/case replies.  
-
   
 ## RPH calculation
 Case Replies/Time in Ready  
