@@ -25,7 +25,7 @@ The script refreshes every minute to stay up to date with new statuses/case repl
 ## RPH calculation
 Case Replies/Time in Ready  
 Example: if you work uninterupted (in a ready status) for 2 hours and you sent 4 emails you divide the time in ready by the amount of emails. 4/2 = 2, RPH = 2.  
-RPH calculation also includes a %10 buffer subtracted from the Time in Ready as there will be some time you are 'inactive', but otherwise busy.  
+RPH calculation also includes a %10 buffer subtracted from the Time in Ready as there will be some time you are 'inactive', but otherwise busy. This is how the actual metric works so I included that in the script to be as accurate as possible.  
 
 # Installation
 1. Install a User Script manager extension on your browser. Example [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
