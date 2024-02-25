@@ -1,4 +1,4 @@
-# Real-Time-RPH-Calculator
+# Live RPH 
 Calculates real time RPH for the current date. 
 
 # What is RPH? 
@@ -7,8 +7,8 @@ The acronymn RPH stands for responses per hour. It is a KPI for technical suport
 Conversely 'inactive' time is when you should be working on cases and sending responses. In the script this is referred to as 'Time in Ready'.
 
 # Why is this script necessary? 
-The built in tools for tracking RPH only shows the agent their RPH from the first of the month to the current date. There isn't an easy way to see how you are doing for this metric daily. 
-If you value a consistent work flow, having accurate metrics that you can review in real time is invaluable. 
+The built in tools for tracking RPH only shows the agent their RPH from the first of the month to the current date. There isn't an easy way to see how you are doing for this metric in real time. 
+This script outputs your RPH for the day, updated by the minute so you can see if you are ahead or behind for the day. 
 
 # How does it work? 
 In toolbelt there is a graph (Agent Timeline) that tracks your status throughout the day. It also tracks when you send a response as a 'Case Reply'.    
