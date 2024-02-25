@@ -8,7 +8,7 @@ Conversely 'inactive' time is when you should be working on cases and sending re
 
 # Why is this script necessary? 
 The built in tools for tracking RPH only shows the agent their RPH from the first of the month to the current date. There isn't an easy way to see how you are doing for this metric in real time. 
-This script outputs your RPH for the day, updated by the minute so you can see if you are ahead or behind for the day. 
+This script outputs your RPH for the day, so you can see if you are ahead or behind for the day.
 
 # How does it work? 
 In toolbelt there is a graph (Agent Timeline) that tracks your status throughout the day. It also tracks when you send a response as a 'Case Reply'.    
