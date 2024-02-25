@@ -32,7 +32,7 @@ RPH calculation also includes a %10 buffer subtracted from the Time in Ready as 
 2. Install the script from this [link](https://greasyfork.org/en/scripts/487882-real-time-rph-calculator)
 
 # How to Use
-Simply open the console in devtools and you should see the output from the script.  
+Simply open the console in devtools on your toolbelt home page. 
 Hotkeys to open Console:  
 Windows – Ctrl + Shift + J.  
 Mac – Cmd + Opt +J.
