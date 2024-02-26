@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Real Time RPH Calculator
+// @name         Live RPH
 // @namespace    http://tampermonkey.net/
 // @version      1
 // @description Calculate your RPH in toolbelt on a day to day basis rather than month to month.
