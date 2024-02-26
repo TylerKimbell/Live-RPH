@@ -29,7 +29,7 @@ RPH calculation also includes a %10 buffer subtracted from the Time in Ready as 
 
 # Installation
 1. Install [tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo).
-2. Install the script from this [link](https://greasyfork.org/en/scripts/487882-real-time-rph-calculator)
+2. Install the script from this [link](https://greasyfork.org/en/scripts/488376-live-rph)
 
 # How to Use
 Simply open the console in devtools on your toolbelt home page. 
