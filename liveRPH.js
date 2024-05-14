@@ -13,8 +13,12 @@
 let content = [];
 let todayData = [];
 let pastData = [];
-let lastShiftData = [];
-let lastShiftDataSorted = [];
+let prevShiftData = [];
+let prevShiftDataSorted = [];
+let monthShiftData = [];
+let monthShiftDataSorted = [];
+let monthTime = 0;
+let monthResponses = 0;
 //'start = ' section of request url
 const currentDate = new Date();
 const startTimestamp = getMidnightTimestamp(currentDate);
@@ -33,28 +37,28 @@ async function fetchData(url, location) {
         }
         return response.json();
     }).then((data) => {
-		if(location == 'now'){
-			todayData = data.data;
-		} else {
-			pastData = data.data;
-		}
-	}).catch((error) => {
+        if(location == 'now'){
+            todayData = data.data;
+        } else {
+            pastData = data.data;
+        }
+    }).catch((error) => {
         console.error('Error fetching data:', error.message);
     });
 }
 
 async function fetchNow() {
-	const startTimestamp = getMidnightTimestamp(currentDate);
+    const startTimestamp = getMidnightTimestamp(currentDate);
     const nextDay = new Date(currentDate);
     nextDay.setDate(currentDate.getDate() + 1); // Get the next day
     const endTimestamp = getMidnightTimestamp(nextDay) - 1;
     const endpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${startTimestamp}&end=${endTimestamp}.999&interval=undefined`;
 
-	await fetchData(endpointUrl, 'now').then(() => {
-		// Data for timestamp
-		const nowTimestamp = new Date();
-    	const nowDate = nowTimestamp.toLocaleDateString();
-    	const nowTime = nowTimestamp.toLocaleTimeString();
+    await fetchData(endpointUrl, 'now').then(() => {
+        // Data for timestamp
+        const nowTimestamp = new Date();
+        const nowDate = nowTimestamp.toLocaleDateString();
+        const nowTime = nowTimestamp.toLocaleTimeString();
         // Filter elements with name: 'Chat'
         const chatElements = todayData.filter((element) => element.name === 'Chat');
         // Filter elements with name: 'On Call'
@@ -148,10 +152,10 @@ async function fetchNow() {
         content[6] = {"name": "break", "value":`Break: ${formatTime(totalDurationInSecondsNotReadyBreak)}`};
         content[7] = {"name": "replies", "value": `Case Replies: ${caseReplyElements.length}`};
         content[9] = {"name": "todayRPH", "value": `Today's RPH: ${rph.toFixed(2)}`};
-	});
+    });
 }
 
-async function fetchPrevious(depth) {
+async function fetchPrevious(depth, location) {
     const prevDate = new Date(currentDate);
 
     for(let n=1;n<depth;n++) {
@@ -166,8 +170,8 @@ async function fetchPrevious(depth) {
         let prevEndTimestamp = getMidnightTimestamp(prevEndDate) - 1;
 
         // Store value for last shift date
-        let lastShiftDate = new Date(prevDate);
-        lastShiftDate.setDate(prevDate.getDate());
+        let prevShiftDate = new Date(prevDate);
+        prevShiftDate.setDate(prevDate.getDate());
 
         // Set endpoint to fetch data from
         let prevEndpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${prevStartTimestamp}&end=${prevEndTimestamp}.999&interval=undefined`;
@@ -256,13 +260,25 @@ async function fetchPrevious(depth) {
             // Calculate RPH
             const rph = caseReplyElements.length / remainingRPHInHours;
 
-            // If the response is a valid number, add it to the lastShiftRPH object
+            // If the response is a valid number, add it to the prevShiftData object
             if(!isNaN(rph.toFixed(2))){
-                lastShiftData.push({
-                    "name": "prevRPH", 
-                    "value": `Last Shift's RPH: ${rph.toFixed(2)} on ${lastShiftDate.toLocaleDateString()}`,
-                    "date": prevStartTimestamp // allows sorting of items in object
-                });
+                if(location == 'week'){
+                    prevShiftData.push({
+                        "name": "prevRPH", 
+                        "value": `Last Shift's RPH: ${rph.toFixed(2)} on ${prevShiftDate.toLocaleDateString()}`,
+                        "date": prevStartTimestamp // allows sorting of items in object
+                    });
+                } else {
+                    if(prevShiftDate.getUTCMonth() == currentDate.getUTCMonth()){
+                        monthShiftData.push({
+                            "name": prevShiftDate.toLocaleDateString(), 
+                            "value": rph.toFixed(2),
+                            "date": prevStartTimestamp // allows sorting of items in object
+                        });
+                        monthTime += remainingRPHInHours;
+                        monthResponses += caseReplyElements.length;
+                    }
+                }
             }
             
         });
@@ -304,15 +320,15 @@ function logContent(content){
 }
 
 function calculateRPH() {
-	fetchNow().then(() => {
+    fetchNow().then(() => {
         if(!content[8]) {
-            fetchPrevious(8).then(() => {
+            fetchPrevious(8, 'week').then(() => {
                 // Sort last shift data by date
-                lastShiftDataSorted = lastShiftData.sort(function(a,b){
+                prevShiftDataSorted = prevShiftData.sort(function(a,b){
                     return new Date(b.date) - new Date(a.date);
                 });
                 // Set last shift data in content object
-                content[8] = lastShiftDataSorted[0];
+                content[8] = prevShiftDataSorted[0];
             }).then(() => {
                 // Clear the console
                 console.clear();
@@ -325,9 +341,43 @@ function calculateRPH() {
             // Log fetched data
             logContent(content);  
         }
-	});
+    });
 }
 calculateRPH();
 
 const intervalInMinutes = 1;
 setInterval(calculateRPH, intervalInMinutes * 60 * 1000);
+
+// Constant for referencing months by name
+const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Function to log Month RPH data to the console
+function logMonth(month, year) {
+    console.log(`RPH Report for ${monthNames[month]} ${year}`);
+    console.log(`Shift Data:`);
+    console.log(monthShiftDataSorted);
+    console.log(`Time in Ready (Month Total): ${monthTime.toFixed(2)} hours (%10 buffer inc.)`);
+    console.log(`Case Replies (Month Total): ${monthResponses}`);
+    console.log(`Current Month RPH: ${(monthResponses / monthTime).toFixed(2)}`);
+}
+
+// Function to get Month RPH data
+async function fetchMonth() {
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    // If the month RPH data doesn't already exist, fetch it
+    if(!monthShiftDataSorted.length){
+        console.log(`Your RPH report for the month of ${monthNames[currentMonth]} is currently generating. This can take some time to complete.`);
+        await fetchPrevious(32, 'month').then(() => {
+            monthShiftDataSorted = monthShiftData.sort(function(a,b){
+                return new Date(a.date) - new Date(b.date);
+            });
+        }).then(() => {
+            logMonth(currentMonth, currentYear);
+        });
+    // If the month RPH data exists, skip fetch and log to console
+    } else {
+        logMonth(currentMonth, currentYear);
+    }
+}
