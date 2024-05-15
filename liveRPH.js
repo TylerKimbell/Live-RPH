@@ -8,6 +8,7 @@
 // @license MIT
 // @downloadURL https://update.greasyfork.org/scripts/487882/Real%20Time%20RPH%20Calculator.user.js
 // @updateURL https://update.greasyfork.org/scripts/487882/Real%20Time%20RPH%20Calculator.meta.js
+// @grant       unsafeWindow
 // ==/UserScript==
 // empty objects for data storage:
 let content = [];
@@ -264,14 +265,14 @@ async function fetchPrevious(depth, location) {
             if(!isNaN(rph.toFixed(2))){
                 if(location == 'week'){
                     prevShiftData.push({
-                        "name": "prevRPH", 
+                        "name": "prevRPH",
                         "value": `Last Shift's RPH: ${rph.toFixed(2)} on ${prevShiftDate.toLocaleDateString()}`,
                         "date": prevStartTimestamp // allows sorting of items in object
                     });
                 } else {
                     if(prevShiftDate.getUTCMonth() == currentDate.getUTCMonth()){
                         monthShiftData.push({
-                            "name": prevShiftDate.toLocaleDateString(), 
+                            "name": prevShiftDate.toLocaleDateString(),
                             "value": rph.toFixed(2),
                             "date": prevStartTimestamp // allows sorting of items in object
                         });
@@ -280,7 +281,6 @@ async function fetchPrevious(depth, location) {
                     }
                 }
             }
-            
         });
     }
 }
@@ -339,7 +339,7 @@ function calculateRPH() {
             // Clear the console
             console.clear();
             // Log fetched data
-            logContent(content);  
+            logContent(content);
         }
     });
 }
@@ -380,4 +380,9 @@ async function fetchMonth() {
     } else {
         logMonth(currentMonth, currentYear);
     }
+}
+
+// Make function available in console. Requires "@grant unsafe window" comment
+if(!unsafeWindow.fetchMonth) {
+    unsafeWindow.fetchMonth = fetchMonth;
 }
