@@ -144,23 +144,25 @@ async function fetchNow() {
         const rph = caseReplyElements.length / remainingRPHInHours;
 
         // Map data to content object
-        content[0] = {"name": "timestamp", "value": `${nowDate}     |     ${nowTime}`};
-        content[1] = {"name": "timeLogged", "value": `Total Time Logged in: ${formatTime(totalTimeLoggedInInSeconds)}`};
-        content[2] = {"name": "ready", "value": `Time in Ready: ${formatTime(remainingRPHAdjustTen)} (%10 buffer inc.)`};
-        content[3] = {"name": "calls", "value": `Time on Calls: ${formatTime(totalDurationInSecondsOnCall)}`};
-        content[4] = {"name": "chats", "value": `Time on Chats: ${formatTime(totalDurationInSecondsChat)}`};
-        content[5] = {"name": "away", "value": `Away: ${formatTime(totalDurationInSecondsNotReadyAway)}`};
-        content[6] = {"name": "break", "value":`Break: ${formatTime(totalDurationInSecondsNotReadyBreak)}`};
-        content[7] = {"name": "replies", "value": `Case Replies: ${caseReplyElements.length}`};
-        content[9] = {"name": "todayRPH", "value": `Today's RPH: ${rph.toFixed(2)}`};
+        content[0] = {"name": "heading", "value": `${nowDate} @ ${nowTime}`};
+        content[1] = {"name": "Total Time Logged in", "value": formatTime(totalTimeLoggedInInSeconds)};
+        content[2] = {"name": "Time in Ready", "value": `${formatTime(remainingRPHAdjustTen)} (%10 buffer inc.)`};
+        content[3] = {"name": "Time on Calls", "value": formatTime(totalDurationInSecondsOnCall)};
+        content[4] = {"name": "Time on Chats", "value": formatTime(totalDurationInSecondsChat)};
+        content[5] = {"name": "Away", "value": formatTime(totalDurationInSecondsNotReadyAway)};
+        content[6] = {"name": "Break", "value": formatTime(totalDurationInSecondsNotReadyBreak)};
+        content[7] = {"name": "Case Replies", "value": caseReplyElements.length};
+        content[9] = {"name": "Today's RPH", "value": rph.toFixed(2)};
     });
 }
 
 async function fetchPrevious(depth, location) {
+    // const prevDate = new Date("Sun May 05 2024 10:46:15 GMT-0500 (Central Daylight Time)"); // for testing
     const prevDate = new Date(currentDate);
 
     for(let n=1;n<depth;n++) {
         // Go back a day in iteration
+        // prevDate.setDate(prevDate.getDate() - n); // for testing
         prevDate.setDate(currentDate.getDate() - n);
 
         // Get the day after the current iteration
@@ -265,11 +267,12 @@ async function fetchPrevious(depth, location) {
             if(!isNaN(rph.toFixed(2))){
                 if(location == 'week'){
                     prevShiftData.push({
-                        "name": "prevRPH",
-                        "value": `Last Shift's RPH: ${rph.toFixed(2)} on ${prevShiftDate.toLocaleDateString()}`,
+                        "name": "Last Shift's RPH",
+                        "value": `${rph.toFixed(2)} on ${prevShiftDate.toLocaleDateString()}`,
                         "date": prevStartTimestamp // allows sorting of items in object
                     });
                 } else {
+                    // if(prevShiftDate.getUTCMonth() == prevDate.getUTCMonth()){ // for testing
                     if(prevShiftDate.getUTCMonth() == currentDate.getUTCMonth()){
                         monthShiftData.push({
                             "name": prevShiftDate.toLocaleDateString(),
@@ -284,6 +287,34 @@ async function fetchPrevious(depth, location) {
         });
     }
 }
+
+// Console Style Formatting
+let fontSize = "font-size: 14px";
+let padding = "padding: 3px 6px";
+let nameColor = "color: #eee";
+let textColor = "color: hsla(175.844, 97.4684%, 46.4706%, 1)";
+
+let sharedStyle = [
+    fontSize,
+    padding
+];
+
+let groupStyle = [
+    ...sharedStyle,
+    "color: #333",
+    "background-color: #eee"
+].join(" ;");
+
+let nameStyle = [
+    ...sharedStyle,
+    nameColor,
+    "padding-right: 0px"
+].join(" ;");
+
+let valueStyle = [
+    ...sharedStyle,
+    textColor
+].join(" ;");
 
 // Helper functions need to be globally available
 // Time stamp logic used in request url.
@@ -315,8 +346,15 @@ function padWithZero(number) {
 function logContent(content){
     // Loop through content object and log each property's value
     content.forEach(function(property) {
-        console.log(property.value);
+        if(property.name == "heading") {
+            console.group(`%cRPH Report ${property.value}`, groupStyle);
+        } else if(property.name == "monthData") {
+            console.table(property.value);
+        } else {
+            console.log(`%c${property.name}:%c${property.value}`, nameStyle, valueStyle);
+        }
     });
+    console.groupEnd('RPH Report');
 }
 
 function calculateRPH() {
@@ -353,12 +391,14 @@ const monthNames = ['January','February','March','April','May','June','July','Au
 
 // Function to log Month RPH data to the console
 function logMonth(month, year) {
-    console.log(`RPH Report for ${monthNames[month]} ${year}`);
-    console.log(`Shift Data:`);
-    console.log(monthShiftDataSorted);
-    console.log(`Time in Ready (Month Total): ${monthTime.toFixed(2)} hours (%10 buffer inc.)`);
-    console.log(`Case Replies (Month Total): ${monthResponses}`);
-    console.log(`Current Month RPH: ${(monthResponses / monthTime).toFixed(2)}`);
+    let thisContent = [];
+    let monthShiftDataTransformed = monthShiftDataSorted.reduce((acc, {name, ...x}) => { acc[name] = x; return acc}, {}); // convert to an object with custom index
+    thisContent[0] = {"name": "heading", "value": `${monthNames[month]} ${year}`};
+    thisContent[1] = {"name": "monthData", "value": monthShiftDataTransformed};
+    thisContent[2] = {"name": "Time in Ready (Month Total)", "value": `${monthTime.toFixed(2)} hours (%10 buffer inc.)`};
+    thisContent[3] = {"name": "Case Replies (Month Total)", "value": monthResponses};
+    thisContent[4] = {"name": "Current Month RPH", "value": (monthResponses / monthTime).toFixed(2)};
+    logContent(thisContent);
 }
 
 // Function to get Month RPH data
@@ -368,12 +408,15 @@ async function fetchMonth() {
 
     // If the month RPH data doesn't already exist, fetch it
     if(!monthShiftDataSorted.length){
-        console.log(`Your RPH report for the month of ${monthNames[currentMonth]} is currently generating. This can take some time to complete.`);
+        console.log(`%cYour RPH report for the month of ${monthNames[currentMonth]} is currently generating. This can take some time to complete.`, valueStyle);
         await fetchPrevious(32, 'month').then(() => {
             monthShiftDataSorted = monthShiftData.sort(function(a,b){
                 return new Date(a.date) - new Date(b.date);
             });
         }).then(() => {
+            monthShiftDataSorted.each((data) => {
+                delete data.date; // remove timestamp from table output
+            });
             logMonth(currentMonth, currentYear);
         });
     // If the month RPH data exists, skip fetch and log to console
