@@ -6,8 +6,8 @@
 // @author       Tyler Kimbell
 // @match        https://www.bctoolbelt.com/users/*
 // @license MIT
-// @downloadURL https://update.greasyfork.org/scripts/487882/Real%20Time%20RPH%20Calculator.user.js
-// @updateURL https://update.greasyfork.org/scripts/487882/Real%20Time%20RPH%20Calculator.meta.js
+// @downloadURL https://update.greasyfork.org/scripts/488376/Live%20RPH.user.js
+// @updateURL https://update.greasyfork.org/scripts/488376/Live%20RPH.meta.js
 // @grant       unsafeWindow
 // ==/UserScript==
 // empty objects for data storage:
@@ -20,6 +20,10 @@ let monthShiftData = [];
 let monthShiftDataSorted = [];
 let monthTime = 0;
 let monthResponses = 0;
+let eventData = [];
+let userEvents = [];
+let userData = [];
+
 //'start = ' section of request url
 const currentDate = new Date();
 const startTimestamp = getMidnightTimestamp(currentDate);
@@ -38,10 +42,18 @@ async function fetchData(url, location) {
         }
         return response.json();
     }).then((data) => {
-        if(location == 'now'){
-            todayData = data.data;
-        } else {
-            pastData = data.data;
+        switch(location) {
+            case 'now':
+                todayData = data.data;
+                break;
+            case 'event':
+                eventData = data.event_data;
+                break;
+            case 'user':
+                userData = data.break_queue.user;
+                break;
+            default:
+                pastData = data.data;
         }
     }).catch((error) => {
         console.error('Error fetching data:', error.message);
@@ -49,10 +61,6 @@ async function fetchData(url, location) {
 }
 
 async function fetchNow() {
-    const startTimestamp = getMidnightTimestamp(currentDate);
-    const nextDay = new Date(currentDate);
-    nextDay.setDate(currentDate.getDate() + 1); // Get the next day
-    const endTimestamp = getMidnightTimestamp(nextDay) - 1;
     const endpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${startTimestamp}&end=${endTimestamp}.999&interval=undefined`;
 
     await fetchData(endpointUrl, 'now').then(() => {
@@ -288,11 +296,26 @@ async function fetchPrevious(depth, location) {
     }
 }
 
+async function fetchEventData(){
+    const timelineStart = currentDate.toISOString();
+    const timelineEnd = nextDay.toISOString();
+
+    const endpointUrl = `${window.location.href}.json?callback=schedule_new&timeline_start=${timelineStart}&timeline_end=${timelineEnd}`;
+    await fetchData(endpointUrl, 'event').then(()=>{
+        eventData.forEach((event) => {
+            if(event.title && event.resourceId == "0-channels"){
+                userEvents.push(event);
+            }
+        });
+    });
+}
+
 // Console Style Formatting
 let fontSize = "font-size: 14px";
 let padding = "padding: 3px 6px";
 let nameColor = "color: #eee";
 let textColor = "color: hsla(175.844, 97.4684%, 46.4706%, 1)";
+let warnColor = "color: hsla(13, 91.3%, 55.1%, 1)";
 
 let sharedStyle = [
     fontSize,
@@ -314,6 +337,11 @@ let nameStyle = [
 let valueStyle = [
     ...sharedStyle,
     textColor
+].join(" ;");
+
+let warnStyle = [
+    ...sharedStyle,
+    warnColor
 ].join(" ;");
 
 // Helper functions need to be globally available
@@ -346,18 +374,66 @@ function padWithZero(number) {
 function logContent(content){
     // Loop through content object and log each property's value
     content.forEach(function(property) {
-        if(property.name == "heading") {
-            console.group(`%cRPH Report ${property.value}`, groupStyle);
-        } else if(property.name == "monthData") {
-            console.table(property.value);
-        } else {
-            console.log(`%c${property.name}:%c${property.value}`, nameStyle, valueStyle);
+        switch(property.name) {
+            case 'heading':
+                console.group(`%cRPH Report ${property.value}`, groupStyle);
+                break;
+            case 'monthData':
+                console.table(property.value);
+                break;
+            case 'Assigned Channel':
+                break;
+            case 'Current Channel':
+                if(
+                    !(content[10].value === content[11].value)
+                    && !(content[11].value === 'Training')
+                    && !(content[11].value === 'Meeting')
+                    && !(content[11].value === 'Project')
+                ){
+                    console.log(`%c${property.name}:%c${property.value}`, nameStyle, warnStyle);
+                    console.log(`%cPlease ensure you are in the assigned channel:%c${content[10].value}`, warnStyle, `${textColor};${fontSize};`);
+                } else {
+                    console.log(`%c${property.name}:%c${property.value}`, nameStyle, valueStyle);
+                }
+                break;
+            default:
+                console.log(`%c${property.name}:%c${property.value}`, nameStyle, valueStyle);
         }
     });
     console.groupEnd('RPH Report');
 }
 
 function calculateRPH() {
+    fetchEventData().then(()=>{
+        const endpointUrl = `${window.location.href}.json?callback=time`;
+        fetchData(endpointUrl, 'user').then(() => {
+            userEvents.forEach((event) => {
+                let now = Date.now();
+                let eventStart = Date.parse(event.start);
+                let eventEnd = Date.parse(event.end);
+                let currentChannel = "";
+
+                if(now >= eventStart && now <= eventEnd) {
+                    content[10] = {"name": "Assigned Channel", "value": `${event.title}`};
+                    content[11] = {"name": "", "value": ""}; // clear value with each refresh
+                    switch(userData.state) {
+                        case 'Not Ready':
+                            currentChannel = userData.reason_code;
+                            break;
+                        default:
+                            switch(userData.reason_code) {
+                                case null:
+                                    currentChannel = "Phone";
+                                    break;
+                                default:
+                                    currentChannel = userData.reason_code;
+                            }
+                    }
+                    content[11] = {"name":"Current Channel", "value": currentChannel};
+                }
+            });
+        });
+    });
     fetchNow().then(() => {
         if(!content[8]) {
             fetchPrevious(8, 'week').then(() => {
