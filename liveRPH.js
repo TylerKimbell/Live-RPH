@@ -61,7 +61,7 @@ async function fetchData(url, location) {
 }
 
 async function fetchNow() {
-    const endpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${startTimestamp}&end=${endTimestamp}.999&interval=undefined`;
+    const endpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${startTimestamp}&end=${endTimestamp}.999&interval=undefined&request_agent=live_rph`;
 
     await fetchData(endpointUrl, 'now').then(() => {
         // Data for timestamp
@@ -185,7 +185,7 @@ async function fetchPrevious(depth, location) {
         prevShiftDate.setDate(prevDate.getDate());
 
         // Set endpoint to fetch data from
-        let prevEndpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${prevStartTimestamp}&end=${prevEndTimestamp}.999&interval=undefined`;
+        let prevEndpointUrl = `https://www.bctoolbelt.com/users/${user.id}/timeline.json?start=${prevStartTimestamp}&end=${prevEndTimestamp}.999&interval=undefined&request_agent=live_rph`;
 
         await fetchData(prevEndpointUrl, 'prev').then(() => {
             // Filter elements with name: 'Chat'
@@ -300,7 +300,7 @@ async function fetchEventData(){
     const timelineStart = currentDate.toISOString();
     const timelineEnd = nextDay.toISOString();
 
-    const endpointUrl = `${window.location.href}.json?callback=schedule_new&timeline_start=${timelineStart}&timeline_end=${timelineEnd}`;
+    const endpointUrl = `${window.location.href}.json?callback=schedule_new&timeline_start=${timelineStart}&timeline_end=${timelineEnd}&request_agent=live_rph`;
     await fetchData(endpointUrl, 'event').then(()=>{
         eventData.forEach((event) => {
             if(event.title && event.resourceId == "0-channels"){
@@ -405,7 +405,7 @@ function logContent(content){
 
 function calculateRPH() {
     fetchEventData().then(()=>{
-        const endpointUrl = `${window.location.href}.json?callback=time`;
+        const endpointUrl = `${window.location.href}.json?callback=time&request_agent=live_rph`;
         fetchData(endpointUrl, 'user').then(() => {
             userEvents.forEach((event) => {
                 let now = Date.now();
